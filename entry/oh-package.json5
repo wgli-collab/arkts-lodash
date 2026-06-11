@@ -1,0 +1,11 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "ArkTS Lodash test entry module",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "library": "file:../library"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "entry_module_desc",
+      "value": "ArkTS Lodash test entry module"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "ArkTS Lodash test runner"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "Lodash Tests"
+    }
+  ]
+}

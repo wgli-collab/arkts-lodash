@@ -1,0 +1,24 @@
+# Build outputs
+/build/
+library/build/
+entry/build/
+
+# Dependencies
+oh_modules/
+library/oh_modules/
+entry/oh_modules/
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+.hvigor/
+
+# Local config
+local.properties

@@ -1,0 +1,6 @@
+{
+  "string": [
+    { "name": "app_name", "value": "ArkTS Lodash" },
+    { "name": "module_desc", "value": "Lodash utility library for HarmonyOS" }
+  ]
+}

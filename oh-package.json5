@@ -1,0 +1,10 @@
+{
+  "modelVersion": "6.1.1",
+  "name": "arkts-lodash",
+  "version": "1.0.0",
+  "description": "ArkTS port of Lodash - utility library for HarmonyOS",
+  "main": "Index.ets",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {}
+}
