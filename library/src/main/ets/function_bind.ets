@@ -20,14 +20,18 @@ export function bind(func: (...args: Array<Object>) => Object, ...partials: Arra
 
 export function bindKey(object: Object, key: string, ...partials: Array<Object>): (...args: Array<Object>) => Object {
   // ArkTS limitation: cannot dynamically access method by string key (R5).
-  // This stub throws an error directing callers to use arrow functions instead.
-  throw new Error('bindKey is not supported in ArkTS. Use arrow function: (x) => obj.method(x)')
+  throw new Error(
+    'bindKey is not supported in ArkTS. ' +
+    'Use arrow function: (x) => obj.method(x)'
+  )
 }
 
 export function bindAll(object: Object, methodNames: Array<string>): Object {
   // ArkTS limitation: cannot dynamically bind methods (R5, R9).
-  // This stub returns the object unchanged.
-  return object
+  throw new Error(
+    'bindAll is not supported in ArkTS. ' +
+    'Use explicit arrow wrappers: obj.method = (x) => this.originalMethod(x)'
+  )
 }
 
 export function curry(func: (...args: Array<Object>) => Object, arity?: number): Object {

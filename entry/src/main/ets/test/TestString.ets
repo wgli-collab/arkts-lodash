@@ -41,8 +41,8 @@ export function runStringTests(suite: TestSuite): void {
   suite.test('trimStart', (): boolean => trimStart('  abc  ') === 'abc  ')
 
   suite.test('truncate', (): boolean => {
-    const result: string = truncate('hi-diddly-ho there, neighborino', 24)
-    return result.length <= 27 // length + omission
+    const result: string = truncate('hi-diddly-ho there, neighborino')
+    return result.length <= 33 // default length 30 + omission
   })
 
   suite.test('words', (): boolean => {

@@ -92,6 +92,12 @@ export function random(lower: number, upper?: number, floating?: boolean): numbe
     e = lower
     s = 0
   }
+  // Swap if inverted range (matching lodash behavior)
+  if (s > e) {
+    const temp: number = s
+    s = e
+    e = temp
+  }
   const isFloat: boolean = floating === true ||
     (floating !== false && (s % 1 !== 0 || e % 1 !== 0))
   if (isFloat) {

@@ -106,11 +106,11 @@ export function matches(source: Map<string, Object>): (object: Map<string, Objec
 }
 
 export function matchesProperty(path: string, srcValue: Object): (object: Object) => boolean {
-  const predicate: (object: Object) => boolean = (): boolean => {
-    // ArkTS: simplified — property path matching on arbitrary objects is limited
-    return false
-  }
-  return predicate
+  // ArkTS limitation: property path matching on arbitrary objects is not supported (R5, R9).
+  throw new Error(
+    'matchesProperty is not supported in ArkTS. ' +
+    'Use explicit property access: (obj) => get(obj, path) === value'
+  )
 }
 
 export function iteratee(value: Object): (...args: Array<Object>) => Object {

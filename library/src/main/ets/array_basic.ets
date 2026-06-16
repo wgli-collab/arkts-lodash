@@ -95,21 +95,26 @@ export function flatten<T>(array: Array<Array<T>>): Array<T> {
   return result
 }
 
-export function flattenDeep<T>(array: Array<Object>): Array<T> {
-  const result: Array<T> = []
-  flattenDeepRecur(array, result)
-  return result
-}
+const MAX_RECURSION_DEPTH: number = 512
 
-function flattenDeepRecur<T>(array: Array<Object>, result: Array<T>): void {
+function flattenDeepRecur<T>(array: Array<Object>, result: Array<T>, depth: number): void {
+  if (depth > MAX_RECURSION_DEPTH) {
+    throw new Error('flattenDeep: maximum recursion depth exceeded')
+  }
   for (let i: number = 0; i < array.length; i++) {
     const val: Object = array[i]
     if (Array.isArray(val)) {
-      flattenDeepRecur(val as Array<Object>, result)
+      flattenDeepRecur(val as Array<Object>, result, depth + 1)
     } else {
       result.push(val as Object as T)
     }
   }
+}
+
+export function flattenDeep<T>(array: Array<Object>): Array<T> {
+  const result: Array<T> = []
+  flattenDeepRecur(array, result, 0)
+  return result
 }
 
 export function flattenDepth<T>(array: Array<Object>, depth: number): Array<T> {

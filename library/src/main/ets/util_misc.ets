@@ -2,6 +2,8 @@
  * ArkTS Lodash — General Utilities
  */
 
+import { castPathArray } from './object_access'
+
 export function attempt(func: (...args: Array<Object>) => Object, ...args: Array<Object>): Object | Error {
   try {
     return func(...args)
@@ -134,13 +136,5 @@ export function uniqueId(prefix?: string): string {
 }
 
 export function toPath(value: string): Array<string> {
-  const reProp: RegExp = /[^.[\]]+|\[(?:(-?\d+)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g
-  const result: Array<string> = []
-  let match: Array<string> | null = reProp.exec(value)
-  while (match !== null) {
-    const key: string = match[3] ?? match[1] ?? match[0]
-    result.push(key.replace(/\\(.)/g, '$1'))
-    match = reProp.exec(value)
-  }
-  return result
+  return castPathArray(value)
 }

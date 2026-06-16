@@ -18,8 +18,8 @@ export function divide(dividend: number, divisor: number): number {
   return dividend / divisor
 }
 
-export function ceil(number: number, precision: number): number {
-  let p: number = precision
+export function ceil(number: number, precision?: number): number {
+  let p: number = precision !== undefined ? precision : 0
   if (p <= 0 || p > 292) {
     return Math.ceil(number)
   }
@@ -28,8 +28,8 @@ export function ceil(number: number, precision: number): number {
   return Math.ceil(shifted) / factor
 }
 
-export function floor(number: number, precision: number): number {
-  let p: number = precision
+export function floor(number: number, precision?: number): number {
+  let p: number = precision !== undefined ? precision : 0
   if (p <= 0 || p > 292) {
     return Math.floor(number)
   }
@@ -38,8 +38,8 @@ export function floor(number: number, precision: number): number {
   return Math.floor(shifted) / factor
 }
 
-export function round(number: number, precision: number): number {
-  let p: number = precision
+export function round(number: number, precision?: number): number {
+  let p: number = precision !== undefined ? precision : 0
   if (p <= 0 || p > 292) {
     return Math.round(number)
   }

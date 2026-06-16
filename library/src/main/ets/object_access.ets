@@ -3,7 +3,14 @@
  * Uses Map<K,V> for dynamic path access (no obj[key] — R5).
  */
 
-function castPathArray(path: string | Array<number>): Array<string> {
+// Canonical path parser — shared by object_access, util_misc, and object_transform.
+// Handles both dot notation ("a.b.c") and bracket notation ("a[0].c").
+const rePropName: RegExp = /[^.[\]]+|\[(?:(-?\d+)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g
+
+/** Removes backslash escaping from path keys (e.g. "a\\.b" → "a.b"). */
+const reEscapeChar: RegExp = /\\(.)/g
+
+export function castPathArray(path: string | Array<number>): Array<string> {
   if (Array.isArray(path)) {
     const result: Array<string> = []
     for (let i: number = 0; i < path.length; i++) {
@@ -11,13 +18,12 @@ function castPathArray(path: string | Array<number>): Array<string> {
     }
     return result
   }
-  const reProp: RegExp = /[^.[\]]+|\[(?:(-?\d+)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g
   const result: Array<string> = []
-  let match: Array<string> | null = reProp.exec(path)
+  let match: Array<string> | null = rePropName.exec(path)
   while (match !== null) {
     const key: string = match[3] ?? match[1] ?? match[0]
-    result.push(key)
-    match = reProp.exec(path)
+    result.push(key.replace(reEscapeChar, '$1'))
+    match = rePropName.exec(path)
   }
   return result
 }

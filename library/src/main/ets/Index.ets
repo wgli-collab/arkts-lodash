@@ -38,8 +38,8 @@ export { countBy, groupBy, keyBy, partition, sortBy, orderBy, flatMap, flatMapDe
 
 // Function
 export { after, before, ary, unary, negate, once, memoize, wrap, spread, flip } from './function_wrap'
-export { bind, curry, curryRight, partial, partialRight, rearg, overArgs } from './function_bind'
-export { debounce, throttle, defer, delay } from './function_timing'
+export { bind, bindKey, bindAll, curry, curryRight, partial, partialRight, rearg, overArgs } from './function_bind'
+export { debounce, throttle, defer, delay, cancelDebounce, flushDebounce, cancelThrottle, flushThrottle } from './function_timing'
 export { flow, flowRight, over, overEvery, overSome, cond, conforms, matches, matchesProperty, iteratee } from './function_compose'
 
 // Object
@@ -49,3 +49,10 @@ export { keys, keysIn, values, valuesIn, forOwn, forOwnRight, forIn, forInRight,
 
 // Util
 export { attempt, constant, defaultTo, identity, noop, mixin, method, methodOf, nthArg, property, propertyOf, range, rangeRight, times, uniqueId, toPath } from './util_misc'
+
+// Common aliases (lodash v4 convention)
+export { forEach as each } from './collection_core'
+export { head as first } from './array_basic'
+export { assign as extend } from './object_transform'
+export { tail as rest } from './array_basic'
+export { toPairs as entries } from './lang_convert'

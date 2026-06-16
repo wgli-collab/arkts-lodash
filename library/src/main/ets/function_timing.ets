@@ -2,7 +2,51 @@
  * ArkTS Lodash — Timing Functions
  * Uses HarmonyOS setTimeout/clearTimeout API.
  * All callbacks use arrow functions (no Function.apply/.call/.bind — R9).
+ *
+ * Note: ArkTS strict mode cannot attach .cancel()/.flush() to function objects (R5).
+ * Use the standalone `cancelDebounce`/`flushDebounce`/`cancelThrottle`/`flushThrottle`
+ * helpers instead. They accept the function returned by `debounce()`/`throttle()`.
  */
+
+// Registry: maps debounced/throttled function → { cancel, flush } handlers
+const debounceHandlers: Map<Object, Object> = new Map()
+const throttleHandlers: Map<Object, Object> = new Map()
+
+export function cancelDebounce(debounced: (...args: Array<Object>) => Object | undefined): void {
+  const handler: Object | undefined = debounceHandlers.get(debounced as Object)
+  if (handler !== undefined) {
+    const cancelFn: () => void = (handler as Record<string, Object>).cancel as () => void
+    cancelFn()
+    debounceHandlers.delete(debounced as Object)
+  }
+}
+
+export function flushDebounce(debounced: (...args: Array<Object>) => Object | undefined): Object | undefined {
+  const handler: Object | undefined = debounceHandlers.get(debounced as Object)
+  if (handler !== undefined) {
+    const flushFn: () => Object | undefined = (handler as Record<string, Object>).flush as () => Object | undefined
+    return flushFn()
+  }
+  return undefined
+}
+
+export function cancelThrottle(throttled: (...args: Array<Object>) => Object | undefined): void {
+  const handler: Object | undefined = throttleHandlers.get(throttled as Object)
+  if (handler !== undefined) {
+    const cancelFn: () => void = (handler as Record<string, Object>).cancel as () => void
+    cancelFn()
+    throttleHandlers.delete(throttled as Object)
+  }
+}
+
+export function flushThrottle(throttled: (...args: Array<Object>) => Object | undefined): Object | undefined {
+  const handler: Object | undefined = throttleHandlers.get(throttled as Object)
+  if (handler !== undefined) {
+    const flushFn: () => Object | undefined = (handler as Record<string, Object>).flush as () => Object | undefined
+    return flushFn()
+  }
+  return undefined
+}
 
 export function debounce(
   func: (...args: Array<Object>) => Object,
@@ -23,6 +67,23 @@ export function debounce(
     lastInvokeTime = Date.now()
     result = func(...args)
     return result as Object
+  }
+
+  const cancel: () => void = (): void => {
+    if (timerId !== undefined) {
+      clearTimeout(timerId)
+      timerId = undefined
+    }
+    lastArgs = undefined
+  }
+
+  const flush: () => Object | undefined = (): Object | undefined => {
+    if (timerId !== undefined && lastArgs !== undefined) {
+      clearTimeout(timerId)
+      timerId = undefined
+      return invokeFunc()
+    }
+    return undefined
   }
 
   const debounced: (...args: Array<Object>) => Object | undefined = (...args: Array<Object>): Object | undefined => {
@@ -49,6 +110,12 @@ export function debounce(
     return result
   }
 
+  const handler: Record<string, Object> = {
+    'cancel': cancel,
+    'flush': flush
+  }
+  debounceHandlers.set(debounced as Object, handler)
+
   return debounced
 }
 
@@ -71,6 +138,24 @@ export function throttle(
     result = func(...args)
   }
 
+  const cancel: () => void = (): void => {
+    if (timerId !== undefined) {
+      clearTimeout(timerId)
+      timerId = undefined
+    }
+    lastArgs = undefined
+  }
+
+  const flush: () => Object | undefined = (): Object | undefined => {
+    if (timerId !== undefined && lastArgs !== undefined) {
+      clearTimeout(timerId)
+      timerId = undefined
+      invokeFunc()
+      return result
+    }
+    return undefined
+  }
+
   const throttled: (...args: Array<Object>) => Object | undefined = (...args: Array<Object>): Object | undefined => {
     lastArgs = args
     if (timerId === undefined) {
@@ -87,6 +172,12 @@ export function throttle(
     }
     return result
   }
+
+  const handler: Record<string, Object> = {
+    'cancel': cancel,
+    'flush': flush
+  }
+  throttleHandlers.set(throttled as Object, handler)
 
   return throttled
 }

@@ -2,6 +2,8 @@
  * ArkTS Lodash — String Manipulation Functions
  */
 
+import { escapeRegExp } from './string_escape'
+
 export function endsWith(str: string, target: string, position?: number): boolean {
   const end: number = position !== undefined ? position : str.length
   const start: number = end - target.length
@@ -106,9 +108,13 @@ export function trimStart(str: string, chars?: string): string {
   return str.replace(pattern, '')
 }
 
-export function truncate(str: string, length?: number, omission?: string, separator?: string | RegExp): string {
-  const effectiveLength: number = length !== undefined ? length : 30
-  const effectiveOmission: string = omission !== undefined ? omission : '...'
+export function truncate(str: string, options?: Record<string, Object>): string {
+  const effectiveLength: number = options !== undefined && options.length !== undefined
+    ? options.length as number : 30
+  const effectiveOmission: string = options !== undefined && options.omission !== undefined
+    ? options.omission as string : '...'
+  const separator: string | RegExp | undefined = options !== undefined
+    ? options.separator as (string | RegExp | undefined) : undefined
 
   if (str.length <= effectiveLength) {
     return str
@@ -120,7 +126,7 @@ export function truncate(str: string, length?: number, omission?: string, separa
   let result: string = str.slice(0, end)
   if (separator !== undefined && separator !== '') {
     const sepPattern: RegExp = typeof separator === 'string'
-      ? new RegExp(separator as string, 'g')
+      ? new RegExp(escapeRegExp(separator as string), 'g')
       : separator as RegExp
     const matches: Array<string> | null = result.match(sepPattern)
     if (matches !== null && matches.length > 0) {
@@ -155,8 +161,4 @@ export function toLower(str: string): string {
 
 export function toUpper(str: string): string {
   return str.toUpperCase()
-}
-
-function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }

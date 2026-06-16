@@ -186,6 +186,16 @@ export function clone<T>(value: T): T {
   if (value instanceof RegExp) {
     return new RegExp((value as RegExp).source, (value as RegExp).flags) as Object as T
   }
+  // Handle Record<string, Object> — copy own properties using Object.entries (R5-compliant)
+  if (typeof value === 'object') {
+    const result: Map<string, Object> = new Map<string, Object>()
+    const entries: Array<[string, Object]> = Object.entries(value as Record<string, Object>)
+    for (let i: number = 0; i < entries.length; i++) {
+      const entry: [string, Object] = entries[i]
+      result.set(entry[0], entry[1])
+    }
+    return result as Object as T
+  }
   return value
 }
 
@@ -194,7 +204,7 @@ export function cloneDeep<T>(value: T): T {
     return value
   }
   const stack: Map<Object, Object> = new Map<Object, Object>()
-  return baseCloneDeep(value as Object, stack) as Object as T
+  return baseCloneDeep(value as Object, stack, 0) as Object as T
 }
 
 export function cloneDeepWith<T>(
@@ -221,7 +231,12 @@ export function cloneWith<T>(
 
 // ---- Internal Deep Clone ----
 
-function baseCloneDeep(value: Object, stack: Map<Object, Object>): Object {
+const MAX_CLONE_DEPTH: number = 512
+
+function baseCloneDeep(value: Object, stack: Map<Object, Object>, depth: number): Object {
+  if (depth > MAX_CLONE_DEPTH) {
+    throw new Error('cloneDeep: maximum recursion depth exceeded')
+  }
   if (stack.has(value)) {
     return stack.get(value) as Object
   }
@@ -233,7 +248,7 @@ function baseCloneDeep(value: Object, stack: Map<Object, Object>): Object {
     for (let i: number = 0; i < arr.length; i++) {
       const item: Object = arr[i]
       if (item !== null && typeof item === 'object') {
-        result[i] = baseCloneDeep(item, stack)
+        result[i] = baseCloneDeep(item, stack, depth + 1)
       } else {
         result[i] = item
       }
@@ -251,7 +266,7 @@ function baseCloneDeep(value: Object, stack: Map<Object, Object>): Object {
       const k: Object = mapNext.value
       const v: Object | undefined = m.get(k)
       if (v !== undefined && v !== null && typeof v === 'object') {
-        result.set(k, baseCloneDeep(v, stack))
+        result.set(k, baseCloneDeep(v, stack, depth + 1))
       } else if (v !== undefined) {
         result.set(k, v as Object)
       }
@@ -269,7 +284,7 @@ function baseCloneDeep(value: Object, stack: Map<Object, Object>): Object {
     while (!setNext.done) {
       const item: Object = setNext.value
       if (item !== null && typeof item === 'object') {
-        result.add(baseCloneDeep(item, stack))
+        result.add(baseCloneDeep(item, stack, depth + 1))
       } else {
         result.add(item)
       }
@@ -295,7 +310,7 @@ function baseCloneDeep(value: Object, stack: Map<Object, Object>): Object {
     const key: string = entry[0]
     const val: Object = entry[1]
     if (val !== null && typeof val === 'object') {
-      result.set(key, baseCloneDeep(val, stack))
+      result.set(key, baseCloneDeep(val, stack, depth + 1))
     } else {
       result.set(key, val)
     }

@@ -86,12 +86,17 @@ export function orderBy<T>(collection: Array<T>, iteratees: Array<((v: T) => num
   return sorted
 }
 
-function baseFlatten<T>(array: Array<Object>): Array<T> {
+const MAX_FLATTEN_DEPTH: number = 512
+
+function baseFlatten<T>(array: Array<Object>, depth: number): Array<T> {
+  if (depth > MAX_FLATTEN_DEPTH) {
+    throw new Error('flatMapDeep: maximum recursion depth exceeded')
+  }
   const result: Array<T> = []
   for (let i: number = 0; i < array.length; i++) {
     const val: Object = array[i]
     if (Array.isArray(val)) {
-      const sub: Array<T> = baseFlatten<T>(val as Array<Object>)
+      const sub: Array<T> = baseFlatten<T>(val as Array<Object>, depth + 1)
       for (let j: number = 0; j < sub.length; j++) {
         result.push(sub[j])
       }
@@ -103,14 +108,11 @@ function baseFlatten<T>(array: Array<Object>): Array<T> {
 }
 
 export function flatMap<T, R>(collection: Array<T>, iteratee: (v: T) => Array<R>): Array<R> {
-  const mapped: Array<Array<R>> = []
-  for (let i: number = 0; i < collection.length; i++) {
-    mapped.push(iteratee(collection[i]))
-  }
   const result: Array<R> = []
-  for (let i: number = 0; i < mapped.length; i++) {
-    for (let j: number = 0; j < mapped[i].length; j++) {
-      result.push(mapped[i][j])
+  for (let i: number = 0; i < collection.length; i++) {
+    const mapped: Array<R> = iteratee(collection[i])
+    for (let j: number = 0; j < mapped.length; j++) {
+      result.push(mapped[j])
     }
   }
   return result
@@ -120,7 +122,7 @@ export function flatMapDeep<T, R>(collection: Array<T>, iteratee: (v: T) => Arra
   const result: Array<R> = []
   for (let i: number = 0; i < collection.length; i++) {
     const val: Array<R> = iteratee(collection[i])
-    const flattened: Array<R> = baseFlatten<R>(val as Object as Array<Object>)
+    const flattened: Array<R> = baseFlatten<R>(val as Object as Array<Object>, 0)
     for (let j: number = 0; j < flattened.length; j++) {
       result.push(flattened[j])
     }
@@ -139,12 +141,10 @@ export function flatMapDepth<T, R>(collection: Array<T>, iteratee: (v: T) => Arr
 
 export function invokeMap(collection: Array<Object>, methodName: string, ...args: Array<Object>): Array<Object> {
   // ArkTS limitation: cannot dynamically dispatch methods by name (R5, R9).
-  // Returns undefined for each element. Callers should use typed method calls instead.
-  const result: Array<Object> = []
-  for (let i: number = 0; i < collection.length; i++) {
-    result.push(new Object())
-  }
-  return result
+  throw new Error(
+    'invokeMap is not supported in ArkTS. ' +
+    'Use typed method calls: collection.map(item => item.method(...args))'
+  )
 }
 
 export function sample<T>(collection: Array<T>): T | undefined {

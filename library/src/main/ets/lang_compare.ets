@@ -76,12 +76,21 @@ function baseIsEqual(
   return deepCompare(value, other, customizer, effectiveStack)
 }
 
+const MAX_COMPARE_DEPTH: number = 512
+
 function deepCompare(
   value: Object,
   other: Object,
   customizer?: (v: Object, o: Object, key?: string, vMap?: Map<string, Object>, oMap?: Map<string, Object>) => boolean | undefined,
   stack?: Map<Object, Object>
 ): boolean {
+  // Use stack.size as recursion depth proxy.
+  // For linear nesting each level adds 1 entry — exact depth tracking.
+  // For branching structures stack.size over-counts (all sibling objects accumulate),
+  // making the guard trigger earlier than 512 levels. This is conservative but safe.
+  if (stack !== undefined && stack.size > MAX_COMPARE_DEPTH) {
+    throw new Error('isEqual: maximum recursion depth exceeded')
+  }
   // Circular reference check using Map (not WeakMap — ArkTS R14)
   if (stack !== undefined && stack.has(value)) {
     return stack.get(value) === other

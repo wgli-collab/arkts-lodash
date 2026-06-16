@@ -70,12 +70,26 @@ export function intersection<T>(...arrays: Array<Array<T>>): Array<T> {
     return []
   }
   const first: Array<T> = arrays[0]
+  // Build Sets for O(1) membership (Set uses SameValueZero, so NaN matches NaN)
+  const sets: Array<Set<T>> = []
+  for (let j: number = 1; j < arrays.length; j++) {
+    const s: Set<T> = new Set<T>()
+    for (let k: number = 0; k < arrays[j].length; k++) {
+      s.add(arrays[j][k])
+    }
+    sets.push(s)
+  }
+  const seen: Set<T> = new Set<T>()
   const result: Array<T> = []
   for (let i: number = 0; i < first.length; i++) {
     const val: T = first[i]
+    if (seen.has(val)) {
+      continue
+    }
+    seen.add(val)
     let inAll: boolean = true
-    for (let j: number = 1; j < arrays.length; j++) {
-      if (arrays[j].indexOf(val) < 0) {
+    for (let j: number = 0; j < sets.length; j++) {
+      if (!sets[j].has(val)) {
         inAll = false
         break
       }
@@ -358,25 +372,46 @@ export function xorWith<T>(array: Array<T>, ...args: Array<Array<T> | ((a: T, b:
   const comparator: (a: T, b: T) => boolean = args[args.length - 1] as (a: T, b: T) => boolean
   const arrs: Array<Array<T>> = args.slice(0, args.length - 1) as Array<Array<T>>
   const all: Array<Array<T>> = [array].concat(arrs)
-  const result: Array<T> = []
+
+  // Phase 1: dedup each array internally by comparator
+  const uniq: Array<Array<T>> = []
   for (let i: number = 0; i < all.length; i++) {
+    const deduped: Array<T> = []
     for (let j: number = 0; j < all[i].length; j++) {
       const val: T = all[i][j]
-      let count: number = 0
-      for (let a: number = 0; a < all.length; a++) {
-        for (let b: number = 0; b < all[a].length; b++) {
-          if (comparator(val, all[a][b])) {
-            count++
-            if (count > 1) {
-              break
-            }
-          }
-        }
-        if (count > 1) {
+      let found: boolean = false
+      for (let k: number = 0; k < deduped.length; k++) {
+        if (comparator(val, deduped[k])) {
+          found = true
           break
         }
       }
-      if (count === 1) {
+      if (!found) {
+        deduped.push(val)
+      }
+    }
+    uniq.push(deduped)
+  }
+
+  // Phase 2: for each unique element, count arrays that contain a match
+  const result: Array<T> = []
+  for (let i: number = 0; i < uniq.length; i++) {
+    for (let j: number = 0; j < uniq[i].length; j++) {
+      const val: T = uniq[i][j]
+      let arrayCount: number = 0
+      for (let a: number = 0; a < uniq.length; a++) {
+        for (let b: number = 0; b < uniq[a].length; b++) {
+          if (comparator(val, uniq[a][b])) {
+            arrayCount++
+            break // found in this array, move to next array
+          }
+        }
+        if (arrayCount > 1) {
+          break // appears in multiple arrays, skip
+        }
+      }
+      if (arrayCount === 1) {
+        // dedup result by comparator
         let already: boolean = false
         for (let k: number = 0; k < result.length; k++) {
           if (comparator(val, result[k])) {

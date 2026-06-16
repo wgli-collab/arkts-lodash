@@ -128,9 +128,11 @@ export function isPlainObject(value: Object | null): boolean {
   if (!isObjLike(value)) {
     return false
   }
-  // ArkTS strict mode cannot use Object.getPrototypeOf; use exclusion approach.
-  // Note: instances of user-defined classes will return true — this is a known
-  // limitation of the exclusion strategy vs lodash's prototype-chain check.
+  // ArkTS strict mode cannot use Object.getPrototypeOf; exclusion approach used instead.
+  // LIMITATION: instances of user-defined classes return true (false positive).
+  // This is a best-effort approximation — lodash uses Object.getPrototypeOf(val) === Object.prototype
+  // which is unavailable in ArkTS strict mode (R14).
+  // If you add a new built-in type to the project, add it to this exclusion list.
   if (value instanceof Array ||
       value instanceof Map ||
       value instanceof Set ||
