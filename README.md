@@ -11,7 +11,6 @@
 - 📐 **类型安全** — 纯 ArkTS strict-mode，0 个 `any`/`unknown`
 - 🔧 **零依赖** — 纯算法实现，不依赖任何第三方库
 - 📦 **模块化** — 按 lodash 原始分类组织，按需导入
-- ✅ **Auditor 合规** — 通过 ArkTS strict-mode 规则检查
 
 ## 安装
 
@@ -148,14 +147,6 @@ import { each, first, extend, rest, entries } from 'library';
 | `isElement` | 返回 `false` — 无 DOM |
 | `isEqual` 自动检测循环引用 | 当前不支持循环引用检测 |
 
-## 质量保证
-
-| 指标 | 值 |
-|------|:--:|
-| ArkTS strict-mode 编译 | ✅ BUILD SUCCESSFUL |
-| API 数量 | 230+ |
-| 源文件 | 25 `.ets` 文件 |
-
 ## 许可证
 
 MIT — 与原 lodash 保持一致。
@@ -163,4 +154,3 @@ MIT — 与原 lodash 保持一致。
 ## 致谢
 
 - [lodash](https://github.com/lodash/lodash) by John-David Dalton — 原创 JavaScript 工具库
-- HarmonyOS 三方库迁移实验 Group B
